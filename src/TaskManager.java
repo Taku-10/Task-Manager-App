@@ -73,7 +73,7 @@ public class TaskManager
 
         // Check if the Task ID starts with the letter T
         if (!taskId.startsWith("T")) {
-            System.out.println("Task ID must start a T");
+            System.out.println("Task ID must start with a T");
             return;
         }
 
@@ -91,8 +91,8 @@ public class TaskManager
         }
         // add the newly created task to the taskMap with taskId as the key
         taskMap.put(taskId, newTask);
+        System.out.println("Task has been added");
     }
-
 
     public void removeTask(String taskId) {
         // Check if the task with the given 'taskId' exists in the taskMap
@@ -327,7 +327,6 @@ public class TaskManager
                     List<String> dependenciesList = Arrays.asList(dependenciesArray);
 
                     taskManager.addTask(taskId, timeToComplete, dependenciesList);
-                    System.out.println("Task has been added");
                     break;
 
                 case 3:
