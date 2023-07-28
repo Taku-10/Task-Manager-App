@@ -90,4 +90,16 @@ public class TaskManager
             }
         }
     }
+
+    public void changeTimeToComplete(String taskId, int newTime)
+    {
+        // Get task object based on the provided id
+        Task task = taskMap.get(taskId);
+        // Check if task exists
+        if (task!= null)
+        {
+            // If the task exists update its timeToComplete
+            task.setTimeToComplete(newTime);
+        }
+    }
 }
