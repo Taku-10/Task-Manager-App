@@ -230,6 +230,51 @@ public class TaskManager
         taskStack.push(taskId);
     }
 
+    public Map<String, Integer> findEarliestTimes()
+    {
+        Map<String, Integer> earliestTimes = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+
+        // Perform DFS visit on each task
+        for (Task task : taskMap.values())
+        {
+            if (!visited.contains(task.getTaskId()))
+            {
+                dfsEarliestTimes(task, visited, earliestTimes);
+            }
+        }
+
+        return earliestTimes;
+    }
+
+    private int dfsEarliestTimes(Task task, Set<String> visited, Map<String, Integer> earliestTimes)
+    {
+        visited.add(task.getTaskId());
+
+        // If the earliest time for this task has already been calculated, return it
+        if (earliestTimes.containsKey(task.getTaskId()))
+        {
+            return earliestTimes.get(task.getTaskId());
+        }
+
+        // Calculate the earliest time for this task by considering its dependencies
+        int earliestTime = 0;
+        for (Task dependency : task.getDependencies())
+        {
+            if (dependency != null)
+            {
+                int dependencyTime = dfsEarliestTimes(dependency, visited, earliestTimes);
+                earliestTime = Math.max(earliestTime, dependencyTime + dependency.getTimeToComplete());
+            }
+        }
+
+        // Store the calculated earliest time for this task
+        earliestTimes.put(task.getTaskId(), earliestTime);
+
+        return earliestTime;
+    }
+
+
     public void displayMenu()
     {
         System.out.println("Select a command from the Menu below: ");
@@ -316,6 +361,22 @@ public class TaskManager
                 case 6:
                     List<String> taskSequence = taskManager.topologicalSort();
                     System.out.println("Task sequence without violating dependencies: " + taskSequence);
+                    break;
+
+                case 7:
+                    Map<String, Integer> earliestTimes = taskManager.findEarliestTimes();
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter("EarliestTimes.txt")))
+                    {
+                        for (Map.Entry<String, Integer> entry : earliestTimes.entrySet())
+                        {
+                            bw.write(entry.getKey() + ", " + entry.getValue());
+                            bw.newLine();
+                        }
+                        System.out.println("Earliest times have been saved to EarliestTimes.txt.");
+                    } catch (IOException e)
+                    {
+                        System.out.println("Error saving earliest times to the file.");
+                    }
                     break;
 
                 case 8:
