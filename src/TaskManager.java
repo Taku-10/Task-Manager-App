@@ -24,11 +24,12 @@ public class TaskManager
                 String taskId = taskInfo[0].trim();
                 int timeToComplete = Integer.parseInt(taskInfo[1].trim());
                 Task task = new Task(taskId, timeToComplete);
-                // Any dependencies for the task?
-                if (taskInfo.length > 2 ) {
-                    // Iterate through the array from index 2 to the end
-                    for (int i=2; i<taskInfo.length; i++) {
-                        task.getDependencies().add(taskMap.get(taskInfo[i]));
+
+                for (int i=2; i<taskInfo.length; i++)
+                {
+                    String dependencyId = taskInfo[i].trim();
+                    if (!dependencyId.isEmpty()) {
+                        task.getDependencies().add(taskMap.get(dependencyId));
                     }
                 }
                 // Add task object to the map
@@ -56,41 +57,42 @@ public class TaskManager
         taskMap.put(taskId, newTask);
     }
 
-    public void removeTask(String taskId)
-    {
-        if (!taskMap.containsKey(taskId))
-        {
-            System.out.println(taskId + " not found in the project");
+    public void removeTask(String taskId) {
+        // Check if the task with the given 'taskId' exists in the taskMap
+        if (!taskMap.containsKey(taskId)) {
+            System.out.println("Task with id " + taskId + " not found in the project.");
             return;
         }
 
-        // Remove task from map
-        Task removedTask = taskMap.remove(taskId);
-        System.out.println("Task with id " + taskId + " removed successfully");
-        // Check if Task was found and removed
-        if (removedTask != null)
-        {
-            // Loop through all the remaining tasks in the task Map
-            for (Task task : taskMap.values())
-            {
-                // Dependencies list of the current task
-                List<Task> dependencies = task.getDependencies();
-                // Temporary list to store dependencies to be removed
-                List<Task> dependenciesToRemove = new ArrayList<>();
-                // Loop through the dependencies list of the current list
-                for (Task dependency : dependencies) {
-                    // Check if the task Id of the dependency matches the taskId to be removed
-                    if (dependency.getTaskId().equals(taskId))
-                    {
-                        // Add the dependency to the temporary list for removal
-                        dependenciesToRemove.add(dependency);
-                    }
+        // Remove the task with the given id
+        taskMap.remove(taskId);
+
+        // Loop through all the remaining tasks in the map
+        for (Task task : taskMap.values()) {
+            List<Task> dependencies = task.getDependencies();
+            int numDependencies = dependencies.size();
+
+            // Temporary list to store dependencies to be removed
+            List<Task> dependenciesToRemove = new ArrayList<>();
+
+            // Loop through the dependencies list of the current task
+            for (int i = 0; i < numDependencies; i++) {
+                Task dependency = dependencies.get(i);
+
+                // Check if the taskId of the dependency matches the taskId to be removed
+                if (dependency != null && dependency.getTaskId().equals(taskId)) {
+                    // Add the dependency to the temporary list for removal
+                    dependenciesToRemove.add(dependency);
                 }
-                // Remove the dependencies from the current task's dependencies list
-                dependencies.removeAll(dependenciesToRemove);
             }
+
+            // Remove the dependencies that need to be removed from the current task's dependencies list
+            dependencies.removeAll(dependenciesToRemove);
         }
+
+        System.out.println("Task with id "+ taskId + " has been removed");
     }
+
 
     public void changeTimeToComplete(String taskId, int newTime)
     {
@@ -118,10 +120,18 @@ public class TaskManager
             {
                 // Write the task information to the file
                 bw.write(task.getTaskId() + ", " + task.getTimeToComplete());
-                // Loop through the dependencies of the current task
-                for (Task dependency : task.getDependencies()) {
-                    bw.write(", " + dependency.getTaskId());
+                if (!task.getDependencies().isEmpty())
+                {
+                    // Loop through the dependencies of the current task
+                    for (Task dependency : task.getDependencies())
+                    {
+                        if (dependency != null)
+                        {
+                            bw.write(", " + dependency.getTaskId());
+                        }
+                    }
                 }
+
                 bw.newLine();
             }
         }
