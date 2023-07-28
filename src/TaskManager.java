@@ -10,52 +10,89 @@ public class TaskManager
         taskMap = new HashMap<>();
     }
 
-    public void readTasksFromFile(String filename) throws IOException {
-        taskMap.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename)))
-        {
-            String line;
-            // Read each line from the file
-            while((line = br.readLine()) != null)
-            {
-                // Split line into taskInfo
-                String[] taskInfo = line.split(",");
-                // Extract the taskId and timeToComplete from the array
-                String taskId = taskInfo[0].trim();
-                int timeToComplete = Integer.parseInt(taskInfo[1].trim());
-                Task task = new Task(taskId, timeToComplete);
+    public void readTasksFromFile(String fileName) throws IOException {
 
-                for (int i=2; i<taskInfo.length; i++)
-                {
-                    String dependencyId = taskInfo[i].trim();
-                    if (!dependencyId.isEmpty()) {
-                        task.getDependencies().add(taskMap.get(dependencyId));
-                    }
+        taskMap.clear();
+
+        // list to store task information from the file
+        List<String[]> taskInfoList = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                // Split the line into taskInfo
+                String[] taskInfo = line.split(",");
+                // Add the taskInfo array to the taskInfoList
+                taskInfoList.add(taskInfo);
+            }
+        }
+
+        // Add tasks to the taskMap without dependencies
+        for (String[] taskInfo : taskInfoList) {
+            // Extract taskId and timeToComplete taskInfo array
+            String taskId = taskInfo[0].trim();
+            int timeToComplete = Integer.parseInt(taskInfo[1].trim());
+
+            Task task = new Task(taskId, timeToComplete);
+            // Add task object to the taskMap
+            taskMap.put(taskId, task);
+        }
+
+        // Process dependencies and add them to tasks
+        for (String[] taskInfo : taskInfoList) {
+
+            String taskId = taskInfo[0].trim();
+
+            // Retrieve the corresponding task object from the taskMap using taskId
+            Task task = taskMap.get(taskId);
+
+            // Loop through the taskInfo array from dependencies
+            for (int i = 2; i < taskInfo.length; i++) {
+                // Extract the dependencyId
+                String dependencyId = taskInfo[i].trim();
+
+                if (!dependencyId.isEmpty()) {
+                    // Get corresponding dependency task object from the taskMap using dependencyId
+                    Task dependencyTask = taskMap.get(dependencyId);
+
+                    // Add dependencyTask to the current task's dependencies list
+                    task.getDependencies().add(dependencyTask);
                 }
-                // Add task object to the map
-                taskMap.put(taskId, task);
             }
         }
     }
 
-    public void addTask(String taskId, int timeToComplete, List<String> dependencies)
-    {
+
+    public void addTask(String taskId, int timeToComplete, List<String> dependencies) {
+        // Check if the task with the given ID already exists in the taskMap
+        if (taskMap.containsKey(taskId)) {
+            System.out.println("Task with ID " + taskId + " already exists.");
+            return;
+        }
+
+        // Check if the Task ID starts with the letter T
         if (!taskId.startsWith("T")) {
-            System.out.println(("Task ID must start with the letter T"));
+            System.out.println("Task ID must start a T");
+            return;
         }
 
         Task newTask = new Task(taskId, timeToComplete);
         // Loop through each dependency in the List
-        for (String dependency: dependencies)
-        {
-            // Get the task object that corresponds to the dependency taskID from the task map
-            // Add it to the dependencies list of the new Task
-
-            newTask.getDependencies().add(taskMap.get(dependency));
+        for (String dependency : dependencies) {
+            // Get the task object that corresponds to the dependency taskId from the taskMap
+            Task dependencyTask = taskMap.get(dependency);
+            if (dependencyTask != null) {
+                // Add the dependencyTask to the dependencies list of the new Task
+                newTask.getDependencies().add(dependencyTask);
+            } else {
+                System.out.println("Dependency with ID " + dependency + " does not exist.");
+            }
         }
         // add the newly created task to the taskMap with taskId as the key
         taskMap.put(taskId, newTask);
     }
+
 
     public void removeTask(String taskId) {
         // Check if the task with the given 'taskId' exists in the taskMap
