@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +97,24 @@ public class TaskManager
         {
             // If the task exists update its timeToComplete
             task.setTimeToComplete(newTime);
+        }
+    }
+
+    public void saveTasksToFile(String filename) throws IOException
+    {
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename)))
+        {
+            // Loop through each task in the taskMap
+            for (Task task : taskMap.values())
+            {
+                // Write the task information to the file
+                bw.write(task.getTaskId() + ", " + task.getTimeToComplete());
+                // Loop through the dependencies of the current task
+                for (Task dependency : task.getDependencies()) {
+                    bw.write(", " + dependency.getTaskId());
+                }
+                bw.newLine();
+            }
         }
     }
 }
