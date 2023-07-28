@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TaskManager
 {
@@ -115,6 +112,99 @@ public class TaskManager
                 }
                 bw.newLine();
             }
+        }
+    }
+
+    public void displayMenu()
+    {
+        System.out.println("Select a command from the Menu below: ");
+        System.out.println("(1) Read tasks from file: ");
+        System.out.println("(2) Add task: ");
+        System.out.println("(3) Remove task: ");
+        System.out.println("(4) Change time to complete: ");
+        System.out.println("(5) Save tasks to file: ");
+        System.out.println("(6) Find task sequence: ");
+        System.out.println("(7) Find earliest times: ");
+        System.out.println("(8) Exit: ");
+    }
+
+    public static void main(String[] args) throws IOException {
+        TaskManager taskManager = new TaskManager();
+        Scanner input = new Scanner(System.in);
+
+        while (true)
+        {
+            taskManager.displayMenu();
+
+            int choice = input.nextInt();
+            input.nextLine();
+
+            switch(choice)
+            {
+                case 1:
+                    System.out.println("Enter the name of the file to read tasks from: ");
+                    String fileName = input.nextLine();
+
+                    try
+                    {
+                        taskManager.readTasksFromFile(fileName);
+                        System.out.println("Tasks have been read from the file successfully!");
+                    } catch (IOException e)
+                    {
+                        System.out.println("Error reading tasks from file");
+                    }
+                    break;
+
+                case 2:
+                    System.out.println("Enter the task ID: ");
+                    String taskId = input.nextLine();
+                    System.out.println("Enter time needed to complete the task: ");
+                    int timeToComplete = input.nextInt();
+                    input.nextLine();
+
+                    System.out.println("Enter the task dependencies (comma separated if there are any): ");
+                    String[] dependenciesArray = input.nextLine().split(",");
+                    List<String> dependenciesList = Arrays.asList(dependenciesArray);
+
+                    taskManager.addTask(taskId, timeToComplete, dependenciesList);
+                    System.out.println("Task has been added");
+                    break;
+
+                case 3:
+                    System.out.println("Enter the task ID for the task to remove: ");
+                    taskId = input.nextLine();
+                    taskManager.removeTask(taskId);
+                    System.out.println("Task removed successfully");
+                    break;
+
+                case 4:
+                    System.out.println("Enter the task ID to change the time needed to complete: ");
+                    taskId = input.nextLine();
+                    System.out.println("Enter the new time to complete the task: ");
+                    int newTime = input.nextInt();
+                    input.nextLine();
+                    taskManager.changeTimeToComplete(taskId, newTime);
+                    System.out.println("Time to complete for " + taskId + " changed successfully");
+                    break;
+
+                case 5:
+                    System.out.println("Enter the file name to save the tasks to: ");
+                    fileName = input.nextLine();
+                    try
+                    {
+                        taskManager.saveTasksToFile(fileName);
+                        System.out.println("Tasks have been successfully been saved to " + fileName);
+                    } catch(IOException e)
+                    {
+                        System.out.println("Error saving tasks to file");
+                    }
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please select from 1-8 and try again");
+                    break;
+            }
+
         }
     }
 }
