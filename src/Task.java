@@ -28,6 +28,15 @@ public class Task {
         return this.timeToComplete;
     }
 
+    public List<Task> getDependencies() {
+        return dependencies;
+    }
+
+    public void setDependencies(List<Task> dependencies) {
+        this.dependencies = dependencies;
+    }
+}
+
 
 }
 
