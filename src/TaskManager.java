@@ -137,6 +137,32 @@ public class TaskManager
         }
     }
 
+    public List<Task> findTaskSequence()
+    {
+        List<Task> taskSequence = new ArrayList<>();
+        Set<Task> visited = new HashSet<>();
+
+        for (Task task : taskMap.values()) {
+            if (!visited.contains(task)) {
+                dfsTopologicalSort(task, taskSequence, visited);
+            }
+        }
+
+        Collections.reverse(taskSequence);
+        return taskSequence;
+    }
+
+    private void dfsTopologicalSort(Task task, List<Task> taskSequence, Set<Task> visited) {
+        visited.add(task);
+        for (Task dependency : task.getDependencies()) {
+            if (!visited.contains(dependency)) {
+                dfsTopologicalSort(dependency, taskSequence, visited);
+            }
+        }
+        taskSequence.add(task);
+    }
+
+
     public void displayMenu()
     {
         System.out.println("Select a command from the Menu below: ");
@@ -219,6 +245,20 @@ public class TaskManager
                         System.out.println("Error saving tasks to file");
                     }
                     break;
+
+                case 6:
+                    List<Task> taskSequence = taskManager.findTaskSequence();
+                    System.out.println("Task Sequence: ");
+                    for (Task task : taskSequence)
+                    {
+                        System.out.print(task.getTaskId() + ", ");
+                    }
+                    System.out.println();
+                    break;
+
+                case 8:
+                    System.out.println("Exiting the task manager");
+                    return;
 
                 default:
                     System.out.println("Invalid choice. Please select from 1-8 and try again");
