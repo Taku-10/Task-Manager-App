@@ -62,5 +62,32 @@ public class TaskManager
         taskMap.put(taskId, newTask);
     }
 
-
+    public void removeTask(String taskId)
+    {
+        // Remove task from map
+        Task removedTask = taskMap.remove(taskId);
+        // Check if Task was found and removed
+        if (removedTask != null)
+        {
+            // Loop through all the remaining tasks in the task Map
+            for (Task task : taskMap.values())
+            {
+                // Dependencies list of the current task
+                List<Task> dependencies = task.getDependencies();
+                // Temporary list to store dependencies to be removed
+                List<Task> dependenciesToRemove = new ArrayList<>();
+                // Loop through the dependencies list of the current list
+                for (Task dependency : dependencies) {
+                    // Check if the task Id of the dependency matches the taskId to be removed
+                    if (dependency.getTaskId().equals(taskId))
+                    {
+                        // Add the dependency to the temporary list for removal
+                        dependenciesToRemove.add(dependency);
+                    }
+                }
+                // Remove the dependencies from the current task's dependencies list
+                dependencies.removeAll(dependenciesToRemove);
+            }
+        }
+    }
 }
