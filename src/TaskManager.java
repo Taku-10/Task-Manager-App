@@ -174,31 +174,61 @@ public class TaskManager
         }
     }
 
-    public List<Task> findTaskSequence()
+
+    public List<String> topologicalSort()
     {
-        List<Task> taskSequence = new ArrayList<>();
-        Set<Task> visited = new HashSet<>();
+        List<String> sortedTasks = new ArrayList<>();
+        Set<String> processedTasks = new HashSet<>();
+        Deque<String> taskStack = new LinkedList<>();
 
-        for (Task task : taskMap.values()) {
-            if (!visited.contains(task)) {
-                dfsTopologicalSort(task, taskSequence, visited);
+        // Do a depth-first search on each of the unprocessed tasks in taskMap
+        for (Task task : taskMap.values())
+        {
+            String taskId = task.getTaskId();
+
+            if (!processedTasks.contains(taskId))
+            {
+                // Recursively perform depth-first search on the task
+                depthFirstSearch(taskId, processedTasks, taskStack);
             }
         }
 
-        Collections.reverse(taskSequence);
-        return taskSequence;
+        while (!taskStack.isEmpty())
+        {
+
+            sortedTasks.add(0, taskStack.pop());
+        }
+
+        return sortedTasks;
     }
 
-    private void dfsTopologicalSort(Task task, List<Task> taskSequence, Set<Task> visited) {
-        visited.add(task);
-        for (Task dependency : task.getDependencies()) {
-            if (!visited.contains(dependency)) {
-                dfsTopologicalSort(dependency, taskSequence, visited);
+    private void depthFirstSearch(String taskId, Set<String> processedTasks, Deque<String> taskStack)
+    {
+        // Check if this current task has been visited but not fully processed (cycle detection)
+        if (processedTasks.contains(taskId))
+        {
+            return;
+        }
+
+        // Mark current task as visited
+        processedTasks.add(taskId);
+
+        // Depth-first search on each of the unprocessed dependencies of the current task
+        Task task = taskMap.get(taskId);
+        if (task != null)
+        {
+            for (Task dependency : task.getDependencies())
+            {
+                if (dependency != null)
+                {
+                    depthFirstSearch(dependency.getTaskId(), processedTasks, taskStack);
+                }
             }
         }
-        taskSequence.add(task);
-    }
 
+        // Push task onto the stack after processing all its dependencies
+        taskStack.push(taskId);
+    }
 
     public void displayMenu()
     {
@@ -284,13 +314,8 @@ public class TaskManager
                     break;
 
                 case 6:
-                    List<Task> taskSequence = taskManager.findTaskSequence();
-                    System.out.println("Task Sequence: ");
-                    for (Task task : taskSequence)
-                    {
-                        System.out.print(task.getTaskId() + ", ");
-                    }
-                    System.out.println();
+                    List<String> taskSequence = taskManager.topologicalSort();
+                    System.out.println("Task sequence without violating dependencies: " + taskSequence);
                     break;
 
                 case 8:
