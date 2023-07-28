@@ -58,8 +58,15 @@ public class TaskManager
 
     public void removeTask(String taskId)
     {
+        if (!taskMap.containsKey(taskId))
+        {
+            System.out.println(taskId + " not found in the project");
+            return;
+        }
+
         // Remove task from map
         Task removedTask = taskMap.remove(taskId);
+        System.out.println("Task with id " + taskId + " removed successfully");
         // Check if Task was found and removed
         if (removedTask != null)
         {
@@ -94,6 +101,11 @@ public class TaskManager
         {
             // If the task exists update its timeToComplete
             task.setTimeToComplete(newTime);
+            System.out.println("Task with id " + taskId + " time changed successfully to " + newTime);
+        } else
+        {
+            System.out.println("Task with id " + taskId + " not found in the project");
+            return;
         }
     }
 
@@ -174,7 +186,6 @@ public class TaskManager
                     System.out.println("Enter the task ID for the task to remove: ");
                     taskId = input.nextLine();
                     taskManager.removeTask(taskId);
-                    System.out.println("Task removed successfully");
                     break;
 
                 case 4:
@@ -184,7 +195,6 @@ public class TaskManager
                     int newTime = input.nextInt();
                     input.nextLine();
                     taskManager.changeTimeToComplete(taskId, newTime);
-                    System.out.println("Time to complete for " + taskId + " changed successfully");
                     break;
 
                 case 5:
